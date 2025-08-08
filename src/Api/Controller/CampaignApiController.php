@@ -41,7 +41,9 @@ class CampaignApiController extends AbstractController
      */
     public function getStatistics(string $campaignId, Context $context): JsonResponse
     {
-        $campaign = $this->campaignRepository->get($campaignId, $context);
+        // Use search with a criteria to retrieve the campaign. The repository does not expose get().
+        $criteria = new Criteria([$campaignId]);
+        $campaign = $this->campaignRepository->search($criteria, $context)->first();
 
         if (!$campaign) {
             return new JsonResponse(['error' => 'Campaign not found'], Response::HTTP_NOT_FOUND);
@@ -84,7 +86,9 @@ class CampaignApiController extends AbstractController
      */
     public function cloneCampaign(string $campaignId, Context $context): JsonResponse
     {
-        $originalCampaign = $this->campaignRepository->get($campaignId, $context);
+        // Load the original campaign via criteria search
+        $criteria = new Criteria([$campaignId]);
+        $originalCampaign = $this->campaignRepository->search($criteria, $context)->first();
 
         if (!$originalCampaign) {
             return new JsonResponse(['error' => 'Campaign not found'], Response::HTTP_NOT_FOUND);
@@ -153,7 +157,9 @@ class CampaignApiController extends AbstractController
      */
     public function endCampaign(string $campaignId, Context $context): JsonResponse
     {
-        $campaign = $this->campaignRepository->get($campaignId, $context);
+        // Retrieve the campaign via search API
+        $criteria = new Criteria([$campaignId]);
+        $campaign = $this->campaignRepository->search($criteria, $context)->first();
 
         if (!$campaign) {
             return new JsonResponse(['error' => 'Campaign not found'], Response::HTTP_NOT_FOUND);

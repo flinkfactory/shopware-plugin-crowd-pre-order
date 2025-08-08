@@ -122,37 +122,4 @@
 
 {% block base_script_router %}
     {{ parent() }}
-
-    <script>
-        // Countdown timer functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const countdownElement = document.querySelector('.campaign-countdown');
-            if (!countdownElement) return;
-
-            const endDate = new Date(countdownElement.dataset.endDate);
-
-            function updateCountdown() {
-                const now = new Date();
-                const distance = endDate - now;
-
-                if (distance < 0) {
-                    countdownElement.innerHTML = '<div class="alert alert-warning">Campaign has ended</div>';
-                    return;
-                }
-
-                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-                countdownElement.querySelector('[data-days]').textContent = days;
-                countdownElement.querySelector('[data-hours]').textContent = hours;
-                countdownElement.querySelector('[data-minutes]').textContent = minutes;
-                countdownElement.querySelector('[data-seconds]').textContent = seconds;
-            }
-
-            updateCountdown();
-            setInterval(updateCountdown, 1000);
-        });
-    </script>
 {% endblock %}

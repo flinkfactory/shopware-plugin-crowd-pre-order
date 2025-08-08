@@ -231,7 +231,9 @@ class CampaignService
      */
     public function getCampaign(string $campaignId, Context $context): ?CampaignEntity
     {
-        return $this->campaignRepository->get($campaignId, $context);
+        // Use a criteria search rather than the non-existent get() method
+        $criteria = new Criteria([$campaignId]);
+        return $this->campaignRepository->search($criteria, $context)->first();
     }
 
     /**

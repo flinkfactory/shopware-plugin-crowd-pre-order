@@ -25,6 +25,7 @@ class EnhancedCampaignEndTaskHandler extends ScheduledTaskHandler
     private EntityRepository $pledgeRepository;
     private EntityRepository $orderRepository;
     private EntityRepository $orderTransactionRepository;
+    private EntityRepository $scheduledTaskRepository;
     private StateMachineRegistry $stateMachineRegistry;
     private CampaignService $campaignService;
     private CampaignMailService $mailService;
@@ -34,15 +35,18 @@ class EnhancedCampaignEndTaskHandler extends ScheduledTaskHandler
         EntityRepository $pledgeRepository,
         EntityRepository $orderRepository,
         EntityRepository $orderTransactionRepository,
+        EntityRepository $scheduledTaskRepository,
         StateMachineRegistry $stateMachineRegistry,
         CampaignService $campaignService,
         CampaignMailService $mailService
     ) {
-        parent::__construct();
+        // Pass the scheduled task repository to the parent constructor as required by ScheduledTaskHandler
+        parent::__construct($scheduledTaskRepository);
         $this->campaignRepository = $campaignRepository;
         $this->pledgeRepository = $pledgeRepository;
         $this->orderRepository = $orderRepository;
         $this->orderTransactionRepository = $orderTransactionRepository;
+        $this->scheduledTaskRepository = $scheduledTaskRepository;
         $this->stateMachineRegistry = $stateMachineRegistry;
         $this->campaignService = $campaignService;
         $this->mailService = $mailService;

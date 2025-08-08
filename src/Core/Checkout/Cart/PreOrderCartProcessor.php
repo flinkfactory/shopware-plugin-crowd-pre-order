@@ -29,11 +29,16 @@ use Shopware\Core\Checkout\Cart\Price\Struct\TaxRuleCollection;
 class PreOrderCartProcessor implements CartProcessorInterface
 {
     private EntityRepository $campaignRepository;
+    private EntityRepository $tierRepository;
     private SystemConfigService $systemConfigService;
 
-    public function __construct(EntityRepository $campaignRepository, SystemConfigService $systemConfigService)
-    {
+    public function __construct(
+        EntityRepository $campaignRepository,
+        EntityRepository $tierRepository,
+        SystemConfigService $systemConfigService
+    ) {
         $this->campaignRepository = $campaignRepository;
+        $this->tierRepository = $tierRepository;
         $this->systemConfigService = $systemConfigService;
     }
 
@@ -63,7 +68,7 @@ class PreOrderCartProcessor implements CartProcessorInterface
         SalesChannelContext $context
     ): void {
         // Retrieve default deposit percentage from plugin configuration
-        // Fallback to 10% if not configured
+        // Fallback to 10 if not configured or invalid
         $depositPercent = (float) $this->systemConfigService->get('SwagCrowdPreOrder.config.defaultDepositPercentage');
         if ($depositPercent <= 0) {
             $depositPercent = 10.0;
@@ -90,7 +95,9 @@ class PreOrderCartProcessor implements CartProcessorInterface
             $criteria->addFilter(new RangeFilter('startDate', ['lte' => $now]));
             $criteria->addFilter(new RangeFilter('endDate', ['gte' => $now]));
 
-            $campaign = $this->campaignRepository->search($criteria, $context->getContext())->first();
+            // Use the framework context from the sales channel context for DAL operations
+            $frameworkContext = $context->getContext();
+            $campaign = $this->campaignRepository->search($criteria, $frameworkContext)->first();
 
             if (!$campaign) {
                 continue;
@@ -105,21 +112,49 @@ class PreOrderCartProcessor implements CartProcessorInterface
             $unitPrice = $definition->getPrice();
             $quantity = $lineItem->getQuantity() ?? 1;
 
-            // Calculate deposit price
+            // Determine if a pricing tier applies
+            $tierPrice = null;
+            $tierCriteria = new Criteria();
+            $tierCriteria->addFilter(new EqualsFilter('campaignId', $campaign->getId()));
+            // Sort descending so highest threshold comes first
+            $tierCriteria->addSorting(new \Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting('thresholdQuantity', 'DESC'));
+            $tiers = $this->tierRepository->search($tierCriteria, $frameworkContext);
+
+            // Calculate the effective total pledged quantity after this line item
+            $currentQty = $campaign->getCurrentQuantity() ?? 0;
+            $effectiveQty = $currentQty + $quantity;
+
+            foreach ($tiers as $tier) {
+                if ($effectiveQty >= $tier->getThresholdQuantity()) {
+                    $tierPrice = $tier->getPrice();
+                    break;
+                }
+            }
+
+            // Calculate deposit price per unit as fallback
             $depositPrice = $unitPrice * ($depositPercent / 100.0);
 
-            // Create new price definition for the deposit
+            // Decide final price per unit: use tier price if available, otherwise deposit
+            $finalPrice = $tierPrice !== null ? $tierPrice : $depositPrice;
+
+            // Create new price definition for the selected price
             $taxRules = $definition->getTaxRules() ?? new TaxRuleCollection();
+            $precision = $context->getCurrency()->getDecimalPrecision();
             $newDefinition = new QuantityPriceDefinition(
-                $depositPrice,
+                $finalPrice,
                 $taxRules,
-                $context->getContext()->getCurrencyPrecision(),
+                $precision,
                 $quantity
             );
             $lineItem->setPriceDefinition($newDefinition);
 
             // Mark the line item with the campaign ID for later reference
             $lineItem->setPayloadValue('crowdCampaignId', $campaign->getId());
+            if ($tierPrice !== null) {
+                $lineItem->setPayloadValue('crowdTierPrice', $tierPrice);
+            } else {
+                $lineItem->setPayloadValue('crowdDepositPrice', $depositPrice);
+            }
         }
     }
 }

@@ -31,27 +31,54 @@ class CampaignMailService
     }
 
     /**
+     * Look up the ID of a mail template by its template type technical name.
+     * Returns null if no template can be found for that type.
+     */
+    private function getTemplateIdByTechnicalName(string $technicalName, Context $context): ?string
+    {
+        $criteria = new Criteria();
+        // join the mail template type association to filter by its technical name
+        $criteria->addAssociation('mailTemplateType');
+        $criteria->addFilter(new EqualsFilter('mailTemplateType.technicalName', $technicalName));
+        $criteria->setLimit(1);
+
+        $template = $this->mailTemplateRepository->search($criteria, $context)->first();
+        return $template ? $template->getId() : null;
+    }
+
+    /**
      * Send campaign success email to all pledgers
      */
     public function sendCampaignSuccessEmails(CampaignEntity $campaign, Context $context): void
     {
         $pledges = $this->getPledgesForCampaign($campaign->getId(), $context);
 
+        // Determine template ID for success emails once
+        $templateId = $this->getTemplateIdByTechnicalName('crowd_campaign_success', $context);
+
         foreach ($pledges as $pledge) {
-            if (!$pledge->getCustomer() || !$pledge->getCustomer()->getEmail()) {
+            $customer = $pledge->getCustomer();
+            if (!$customer || !$customer->getEmail()) {
                 continue;
             }
 
-            $data = $this->mailService->send([
+            // Fallback: if template does not exist, skip sending
+            if (!$templateId) {
+                continue;
+            }
+
+            $this->mailService->send([
+                'templateId' => $templateId,
                 'recipients' => [
-                    $pledge->getCustomer()->getEmail() => $pledge->getCustomer()->getFirstName() . ' ' . $pledge->getCustomer()->getLastName()
+                    $customer->getEmail() => $customer->getFirstName() . ' ' . $customer->getLastName()
                 ],
                 'senderName' => 'Shopware Crowd PreOrder',
-                'contentHtml' => $this->getCampaignSuccessHtml($campaign, $pledge),
-                'contentPlain' => $this->getCampaignSuccessPlain($campaign, $pledge),
-                'subject' => 'Your crowdfunding campaign "' . $campaign->getTitle() . '" succeeded!',
-                'salesChannelId' => $pledge->getCustomer()->getSalesChannelId()
-            ], $context);
+                'salesChannelId' => $customer->getSalesChannelId(),
+            ], $context, [
+                'campaign' => $campaign,
+                'customer' => $customer,
+                'pledge' => $pledge,
+            ]);
         }
     }
 
@@ -62,21 +89,31 @@ class CampaignMailService
     {
         $pledges = $this->getPledgesForCampaign($campaign->getId(), $context);
 
+        // Determine template ID for failure emails once
+        $templateId = $this->getTemplateIdByTechnicalName('crowd_campaign_failure', $context);
+
         foreach ($pledges as $pledge) {
-            if (!$pledge->getCustomer() || !$pledge->getCustomer()->getEmail()) {
+            $customer = $pledge->getCustomer();
+            if (!$customer || !$customer->getEmail()) {
                 continue;
             }
 
-            $data = $this->mailService->send([
+            if (!$templateId) {
+                continue;
+            }
+
+            $this->mailService->send([
+                'templateId' => $templateId,
                 'recipients' => [
-                    $pledge->getCustomer()->getEmail() => $pledge->getCustomer()->getFirstName() . ' ' . $pledge->getCustomer()->getLastName()
+                    $customer->getEmail() => $customer->getFirstName() . ' ' . $customer->getLastName()
                 ],
                 'senderName' => 'Shopware Crowd PreOrder',
-                'contentHtml' => $this->getCampaignFailureHtml($campaign, $pledge),
-                'contentPlain' => $this->getCampaignFailurePlain($campaign, $pledge),
-                'subject' => 'Campaign "' . $campaign->getTitle() . '" update',
-                'salesChannelId' => $pledge->getCustomer()->getSalesChannelId()
-            ], $context);
+                'salesChannelId' => $customer->getSalesChannelId(),
+            ], $context, [
+                'campaign' => $campaign,
+                'customer' => $customer,
+                'pledge' => $pledge,
+            ]);
         }
     }
 
