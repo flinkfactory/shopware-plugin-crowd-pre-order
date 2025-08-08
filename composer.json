@@ -1,0 +1,34 @@
+{
+    "name": "swag/crowd-pre-order",
+    "type": "shopware-platform-plugin",
+    "description": "Crowdfunded pre‑order and group‑buy plugin for Shopware 6",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "AI Assistant",
+            "homepage": "https://openai.com"
+        }
+    ],
+    "require": {
+        "shopware/core": "~6.6.0",
+        "shopware/administration": "~6.6.0",
+        "shopware/storefront": "~6.6.0"
+    },
+    "extra": {
+        "shopware-plugin-class": "Swag\\CrowdPreOrder\\SwagCrowdPreOrder",
+        "label": {
+            "en-GB": "CrowdPreOrder",
+            "de-DE": "CrowdPreOrder"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Swag\\CrowdPreOrder\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Swag\\CrowdPreOrder\\Tests\\": "tests/"
+        }
+    }
+}

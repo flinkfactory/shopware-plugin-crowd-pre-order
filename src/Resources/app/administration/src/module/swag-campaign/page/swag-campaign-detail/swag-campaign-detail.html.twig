@@ -1,0 +1,189 @@
+<!-- ./custom/plugins/SwagCrowdPreOrder/src/Resources/app/administration/src/module/swag-campaign/page/swag-campaign-detail/swag-campaign-detail.html.twig -->
+{% block swag_campaign_detail %}
+    <sw-page class="swag-campaign-detail">
+        <template #smart-bar-header>
+            <h2>
+                {{ identifier }}
+            </h2>
+        </template>
+
+        <template #smart-bar-actions>
+            <sw-button :routerLink="{ name: 'swag.campaign.list' }">
+                {{ $tc('swag-campaign.detail.buttonCancel') }}
+            </sw-button>
+
+            <sw-button-process
+                    :isLoading="isLoading"
+                    :processSuccess="processSuccess"
+                    variant="primary"
+                    @process-finish="saveFinish"
+                    @click="onClickSave">
+                {{ $tc('swag-campaign.detail.buttonSave') }}
+            </sw-button-process>
+        </template>
+
+        <template #content>
+            <sw-card-view>
+                <sw-tabs default-item="general">
+                    <template #default="{ active }">
+                        <sw-tabs-item name="general" :active-tab="active">
+                            {{ $tc('swag-campaign.detail.tabGeneral') }}
+                        </sw-tabs-item>
+                        <sw-tabs-item name="tiers" :active-tab="active">
+                            {{ $tc('swag-campaign.detail.tabTiers') }}
+                        </sw-tabs-item>
+                        <sw-tabs-item name="pledges" :active-tab="active">
+                            {{ $tc('swag-campaign.detail.tabPledges') }}
+                        </sw-tabs-item>
+                    </template>
+
+                    <template #content="{ active }">
+                        <!-- General Tab -->
+                        <div v-if="active === 'general'">
+                            <sw-card v-if="campaign" :isLoading="isLoading">
+                                <sw-container columns="repeat(2, 1fr)" gap="0 30px">
+                                    <sw-field
+                                            v-model="campaign.title"
+                                            type="text"
+                                            :label="$tc('swag-campaign.detail.fieldTitle')"
+                                            :placeholder="$tc('swag-campaign.detail.fieldTitle')"
+                                            required
+                                            :error="campaignTitleError">
+                                    </sw-field>
+
+                                    <sw-entity-single-select
+                                            v-model="campaign.productId"
+                                            entity="product"
+                                            :label="$tc('swag-campaign.detail.fieldProduct')"
+                                            :criteria="productCriteria"
+                                            required
+                                            :error="campaignProductIdError">
+                                    </sw-entity-single-select>
+
+                                    <sw-datepicker
+                                            v-model="campaign.startDate"
+                                            dateType="datetime-local"
+                                            :label="$tc('swag-campaign.detail.fieldStartDate')"
+                                            required
+                                            :error="campaignStartDateError">
+                                    </sw-datepicker>
+
+                                    <sw-datepicker
+                                            v-model="campaign.endDate"
+                                            dateType="datetime-local"
+                                            :label="$tc('swag-campaign.detail.fieldEndDate')"
+                                            required
+                                            :error="campaignEndDateError">
+                                    </sw-datepicker>
+
+                                    <sw-number-field
+                                            v-model="campaign.targetQuantity"
+                                            :label="$tc('swag-campaign.detail.fieldTargetQuantity')"
+                                            :placeholder="$tc('swag-campaign.detail.fieldTargetQuantity')"
+                                            :min="0">
+                                    </sw-number-field>
+
+                                    <sw-number-field
+                                            v-model="campaign.targetRevenue"
+                                            :label="$tc('swag-campaign.detail.fieldTargetRevenue')"
+                                            :placeholder="$tc('swag-campaign.detail.fieldTargetRevenue')"
+                                            :min="0"
+                                            :digits="2">
+                                    </sw-number-field>
+
+                                    <sw-select-field
+                                            v-model="campaign.status"
+                                            :label="$tc('swag-campaign.detail.fieldStatus')"
+                                            :options="statusOptions">
+                                    </sw-select-field>
+
+                                    <sw-switch-field
+                                            v-model="campaign.active"
+                                            :label="$tc('swag-campaign.detail.fieldActive')">
+                                    </sw-switch-field>
+                                </sw-container>
+
+                                <!-- Campaign Statistics -->
+                                <sw-container columns="repeat(2, 1fr)" gap="0 30px" class="sw-campaign-statistics">
+                                    <sw-field
+                                            v-model="campaign.currentQuantity"
+                                            type="number"
+                                            :label="$tc('swag-campaign.detail.fieldCurrentQuantity')"
+                                            disabled>
+                                    </sw-field>
+
+                                    <sw-field
+                                            v-model="campaign.currentRevenue"
+                                            type="number"
+                                            :label="$tc('swag-campaign.detail.fieldCurrentRevenue')"
+                                            disabled>
+                                    </sw-field>
+                                </sw-container>
+
+                                <!-- Progress Visualization -->
+                                <div v-if="campaign.targetQuantity > 0" class="sw-campaign-progress">
+                                    <label>{{ $tc('swag-campaign.detail.progressLabel') }}</label>
+                                    <sw-progress-bar
+                                            :value="(campaign.currentQuantity / campaign.targetQuantity) * 100"
+                                            :maxValue="100">
+                                    </sw-progress-bar>
+                                    <small>{{ campaign.currentQuantity }} / {{ campaign.targetQuantity }} {{ $tc('swag-campaign.detail.units') }}</small>
+                                </div>
+                            </sw-card>
+                        </div>
+
+                        <!-- Tiers Tab -->
+                        <div v-if="active === 'tiers'">
+                            <sw-card :title="$tc('swag-campaign.detail.tiersTitle')">
+                                <template #toolbar>
+                                    <sw-button size="small" variant="primary" @click="onAddTier">
+                                        {{ $tc('swag-campaign.detail.buttonAddTier') }}
+                                    </sw-button>
+                                    <sw-button size="small" @click="onSaveTiers">
+                                        {{ $tc('swag-campaign.detail.buttonSaveTiers') }}
+                                    </sw-button>
+                                </template>
+
+                                <sw-data-grid
+                                        v-if="tiers"
+                                        :dataSource="tiers"
+                                        :columns="tierColumns"
+                                        :showSelection="false"
+                                        :allowInlineEdit="true"
+                                        :isLoading="isLoading">
+
+                                    <template #actions="{ item }">
+                                        <sw-context-menu-item @click="onDeleteTier(item)" variant="danger">
+                                            {{ $tc('swag-campaign.detail.deleteTier') }}
+                                        </sw-context-menu-item>
+                                    </template>
+                                </sw-data-grid>
+                            </sw-card>
+                        </div>
+
+                        <!-- Pledges Tab -->
+                        <div v-if="active === 'pledges'">
+                            <sw-card :title="$tc('swag-campaign.detail.pledgesTitle')">
+                                <sw-entity-listing
+                                        v-if="pledges"
+                                        :items="pledges"
+                                        :repository="pledgeRepository"
+                                        :showSelection="false"
+                                        :columns="pledgeColumns"
+                                        :allowEdit="false"
+                                        :allowDelete="false"
+                                        :isLoading="isLoading">
+                                </sw-entity-listing>
+
+                                <sw-empty-state
+                                        v-if="!pledges || pledges.total === 0"
+                                        :title="$tc('swag-campaign.detail.noPledges')">
+                                </sw-empty-state>
+                            </sw-card>
+                        </div>
+                    </template>
+                </sw-tabs>
+            </sw-card-view>
+        </template>
+    </sw-page>
+{% endblock %}

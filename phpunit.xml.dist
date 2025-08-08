@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ./custom/plugins/SwagCrowdPreOrder/phpunit.xml.dist -->
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.5/phpunit.xsd"
+         bootstrap="tests/TestBootstrap.php"
+         cacheResultFile="var/cache/.phpunit.result.cache"
+         executionOrder="depends,defects"
+         forceCoversAnnotation="false"
+         beStrictAboutCoversAnnotation="false"
+         beStrictAboutOutputDuringTests="true"
+         beStrictAboutTodoAnnotatedTests="true"
+         failOnRisky="true"
+         failOnWarning="true"
+         verbose="true">
+    <testsuites>
+        <testsuite name="SwagCrowdPreOrder Test Suite">
+            <directory>tests</directory>
+        </testsuite>
+    </testsuites>
+
+    <coverage cacheDirectory="var/cache/.phpunit.coverage"
+              processUncoveredFiles="true">
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+        <exclude>
+            <directory>src/Migration</directory>
+            <directory>src/Resources</directory>
+        </exclude>
+    </coverage>
+
+    <php>
+        <ini name="error_reporting" value="-1"/>
+        <server name="APP_ENV" value="test" force="true"/>
+        <server name="SHELL_VERBOSITY" value="-1"/>
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="disabled"/>
+    </php>
+</phpunit>

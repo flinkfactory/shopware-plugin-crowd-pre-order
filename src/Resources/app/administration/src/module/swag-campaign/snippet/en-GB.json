@@ -1,0 +1,42 @@
+{
+    "swag-campaign": {
+        "general": {
+            "mainMenuItemGeneral": "Crowdfunding Campaigns",
+            "descriptionTextModule": "Manage crowdfunding campaigns"
+        },
+        "list": {
+            "textTitle": "Crowdfunding Campaigns",
+            "buttonAddCampaign": "Add Campaign",
+            "columnTitle": "Title",
+            "columnProduct": "Product",
+            "columnStartDate": "Start Date",
+            "columnEndDate": "End Date",
+            "columnTarget": "Target",
+            "columnCurrent": "Current",
+            "columnStatus": "Status",
+            "columnActive": "Active"
+        },
+        "detail": {
+            "textHeadline": "Campaign Details",
+            "buttonSave": "Save",
+            "buttonCancel": "Cancel",
+            "tabGeneral": "General",
+            "tabPledges": "Pledges",
+            "tabTiers": "Price Tiers",
+            "fieldTitle": "Campaign Title",
+            "fieldProduct": "Product",
+            "fieldStartDate": "Start Date",
+            "fieldEndDate": "End Date",
+            "fieldTargetQuantity": "Target Quantity",
+            "fieldTargetRevenue": "Target Revenue",
+            "fieldActive": "Active",
+            "fieldStatus": "Status"
+        },
+        "status": {
+            "draft": "Draft",
+            "open": "Open",
+            "success": "Successful",
+            "failed": "Failed"
+        }
+    }
+}

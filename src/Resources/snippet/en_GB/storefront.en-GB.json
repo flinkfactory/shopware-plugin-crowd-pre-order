@@ -1,0 +1,29 @@
+{
+    "swag-campaign": {
+        "widget": {
+            "crowdfunding": "Crowdfunding Campaign",
+            "pledged": "pledged",
+            "days": "Days",
+            "hours": "Hours",
+            "minutes": "Minutes",
+            "seconds": "Seconds",
+            "quantity": "Quantity",
+            "pledgeNow": "Pledge Now",
+            "depositInfo": "Only %deposit%% deposit required now. Full payment upon campaign success.",
+            "campaignEnded": "Campaign has ended",
+            "targetReached": "Target reached!",
+            "backers": "backers"
+        },
+        "status": {
+            "draft": "Draft",
+            "open": "Open",
+            "success": "Successful",
+            "failed": "Failed"
+        },
+        "messages": {
+            "pledgeSuccess": "Successfully pledged to campaign!",
+            "pledgeError": "Error creating pledge. Please try again.",
+            "loginRequired": "Please login to pledge to campaigns."
+        }
+    }
+}

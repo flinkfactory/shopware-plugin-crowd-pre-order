@@ -1,0 +1,68 @@
+<!-- ./custom/plugins/SwagCrowdPreOrder/src/Resources/app/administration/src/module/swag-campaign/page/swag-campaign-list/swag-campaign-list.html.twig -->
+{% block swag_campaign_list %}
+    <sw-page class="swag-campaign-list">
+        {% block swag_campaign_list_smart_bar_header %}
+            <template #smart-bar-header>
+                {% block swag_campaign_list_smart_bar_header_title %}
+                    <h2>
+                        {% block swag_campaign_list_smart_bar_header_title_text %}
+                            {{ $tc('swag-campaign.list.textTitle') }}
+                        {% endblock %}
+
+                        {% block swag_campaign_list_smart_bar_header_title_amount %}
+                            <span v-if="!isLoading" class="sw-page__smart-bar-amount">
+                                ({{ campaigns.total }})
+                            </span>
+                        {% endblock %}
+                    </h2>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block swag_campaign_list_smart_bar_actions %}
+            <template #smart-bar-actions>
+                {% block swag_campaign_list_smart_bar_actions_add %}
+                    <sw-button :routerLink="{ name: 'swag.campaign.create' }" variant="primary">
+                        {{ $tc('swag-campaign.list.buttonAddCampaign') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block swag_campaign_list_content %}
+            <template #content>
+                {% block swag_campaign_list_content_card %}
+                    <sw-entity-listing
+                            v-if="campaigns"
+                            :items="campaigns"
+                            :repository="campaignRepository"
+                            :showSelection="false"
+                            :columns="campaignColumns"
+                            detailRoute="swag.campaign.detail"
+                            :isLoading="isLoading">
+
+                        <template #column-active="{ item }">
+                            <sw-icon v-if="item.active" name="regular-checkmark-circle" color="#37d046"></sw-icon>
+                            <sw-icon v-else name="regular-times-circle" color="#de294c"></sw-icon>
+                        </template>
+
+                        <template #column-status="{ item }">
+                            <sw-label v-if="item.status === 'success'" variant="success">
+                                {{ $tc('swag-campaign.status.success') }}
+                            </sw-label>
+                            <sw-label v-else-if="item.status === 'failed'" variant="danger">
+                                {{ $tc('swag-campaign.status.failed') }}
+                            </sw-label>
+                            <sw-label v-else-if="item.status === 'open'" variant="info">
+                                {{ $tc('swag-campaign.status.open') }}
+                            </sw-label>
+                            <sw-label v-else variant="neutral">
+                                {{ $tc('swag-campaign.status.draft') }}
+                            </sw-label>
+                        </template>
+                    </sw-entity-listing>
+                {% endblock %}
+            </template>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

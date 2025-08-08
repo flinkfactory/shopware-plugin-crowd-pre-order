@@ -1,0 +1,158 @@
+<!-- ./custom/plugins/SwagCrowdPreOrder/src/Resources/views/storefront/page/product-detail/campaign-widget.html.twig -->
+{% sw_extends '@Storefront/storefront/page/product-detail/buy-widget.html.twig' %}
+
+{% block page_product_detail_buy_container %}
+    {% if page.product.extensions.crowdCampaign is defined and page.product.extensions.crowdCampaign %}
+        {% set campaign = page.product.extensions.crowdCampaign %}
+
+        <div class="crowd-campaign-widget">
+            <div class="campaign-header">
+                <h3 class="campaign-title">{{ campaign.title }}</h3>
+                <span class="campaign-badge badge badge-primary">{{ 'swag-campaign.widget.crowdfunding'|trans }}</span>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="campaign-progress mt-3">
+                {% if campaign.targetQuantity > 0 %}
+                    {% set progressPercent = (campaign.currentQuantity / campaign.targetQuantity * 100)|round %}
+                    <div class="progress-info d-flex justify-content-between mb-2">
+                        <span>{{ campaign.currentQuantity }} / {{ campaign.targetQuantity }} {{ 'swag-campaign.widget.pledged'|trans }}</span>
+                        <span>{{ progressPercent }}%</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar bg-success"
+                             role="progressbar"
+                             style="width: {{ progressPercent }}%"
+                             aria-valuenow="{{ progressPercent }}"
+                             aria-valuemin="0"
+                             aria-valuemax="100">
+                        </div>
+                    </div>
+                {% endif %}
+
+                {% if campaign.targetRevenue > 0 %}
+                    {% set revenuePercent = (campaign.currentRevenue / campaign.targetRevenue * 100)|round %}
+                    <div class="progress-info d-flex justify-content-between mb-2 mt-3">
+                        <span>{{ campaign.currentRevenue|currency }} / {{ campaign.targetRevenue|currency }}</span>
+                        <span>{{ revenuePercent }}%</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar bg-info"
+                             role="progressbar"
+                             style="width: {{ revenuePercent }}%"
+                             aria-valuenow="{{ revenuePercent }}"
+                             aria-valuemin="0"
+                             aria-valuemax="100">
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Countdown Timer -->
+            {% if campaign.endDate %}
+                <div class="campaign-countdown mt-3" data-end-date="{{ campaign.endDate|date('c') }}">
+                    <div class="countdown-timer d-flex justify-content-center">
+                        <div class="countdown-item">
+                            <span class="countdown-value" data-days>0</span>
+                            <span class="countdown-label">{{ 'swag-campaign.widget.days'|trans }}</span>
+                        </div>
+                        <div class="countdown-separator">:</div>
+                        <div class="countdown-item">
+                            <span class="countdown-value" data-hours>0</span>
+                            <span class="countdown-label">{{ 'swag-campaign.widget.hours'|trans }}</span>
+                        </div>
+                        <div class="countdown-separator">:</div>
+                        <div class="countdown-item">
+                            <span class="countdown-value" data-minutes>0</span>
+                            <span class="countdown-label">{{ 'swag-campaign.widget.minutes'|trans }}</span>
+                        </div>
+                        <div class="countdown-separator">:</div>
+                        <div class="countdown-item">
+                            <span class="countdown-value" data-seconds>0</span>
+                            <span class="countdown-label">{{ 'swag-campaign.widget.seconds'|trans }}</span>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Pledge Form -->
+            <div class="campaign-pledge-form mt-4">
+                <form action="{{ path('frontend.campaign.pledge') }}"
+                      method="post"
+                      class="buy-widget-form"
+                      data-add-to-cart="true">
+
+                    {{ sw_csrf('frontend.campaign.pledge') }}
+
+                    <input type="hidden" name="productId" value="{{ page.product.id }}">
+
+                    <div class="form-row">
+                        <div class="col-4">
+                            <div class="form-group">
+                                <label for="pledgeQuantity">{{ 'swag-campaign.widget.quantity'|trans }}</label>
+                                <input type="number"
+                                       class="form-control"
+                                       id="pledgeQuantity"
+                                       name="quantity"
+                                       value="1"
+                                       min="1">
+                            </div>
+                        </div>
+                        <div class="col-8">
+                            <div class="form-group">
+                                <label>&nbsp;</label>
+                                <button type="submit"
+                                        class="btn btn-primary btn-block">
+                                    {{ 'swag-campaign.widget.pledgeNow'|trans }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <small class="text-muted">
+                        {{ 'swag-campaign.widget.depositInfo'|trans({'%deposit%': 10}) }}
+                    </small>
+                </form>
+            </div>
+        </div>
+    {% else %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}
+
+{% block base_script_router %}
+    {{ parent() }}
+
+    <script>
+        // Countdown timer functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const countdownElement = document.querySelector('.campaign-countdown');
+            if (!countdownElement) return;
+
+            const endDate = new Date(countdownElement.dataset.endDate);
+
+            function updateCountdown() {
+                const now = new Date();
+                const distance = endDate - now;
+
+                if (distance < 0) {
+                    countdownElement.innerHTML = '<div class="alert alert-warning">Campaign has ended</div>';
+                    return;
+                }
+
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                countdownElement.querySelector('[data-days]').textContent = days;
+                countdownElement.querySelector('[data-hours]').textContent = hours;
+                countdownElement.querySelector('[data-minutes]').textContent = minutes;
+                countdownElement.querySelector('[data-seconds]').textContent = seconds;
+            }
+
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+        });
+    </script>
+{% endblock %}

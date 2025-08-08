@@ -1,0 +1,49 @@
+# ./custom/plugins/SwagCrowdPreOrder/.gitignore
+
+# Dependencies
+/vendor/
+/node_modules/
+
+# Build artifacts
+/src/Resources/public/
+/src/Resources/app/administration/dist/
+/src/Resources/app/storefront/dist/
+
+# Cache and logs
+/var/
+*.log
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Test coverage
+/coverage/
+.phpunit.result.cache
+.phpunit.cache/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Compiled files
+*.min.js
+*.min.css
+*.map
+
+# Temporary files
+*.tmp
+*.bak
+*.backup
+
+# Package manager locks (optional, depending on your workflow)
+# Remove the comment if you want to commit lock files
+# composer.lock
+# package-lock.json
+# yarn.lock

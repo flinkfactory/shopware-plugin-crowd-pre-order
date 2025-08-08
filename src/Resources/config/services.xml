@@ -1,0 +1,102 @@
+<?xml version="1.0" ?>
+<!-- ./custom/plugins/SwagCrowdPreOrder/src/Resources/config/services.xml -->
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <!-- Register custom entity definitions -->
+        <service id="Swag\CrowdPreOrder\Core\Content\Campaign\CampaignDefinition" public="true">
+            <tag name="shopware.entity.definition" />
+        </service>
+        <service id="Swag\CrowdPreOrder\Core\Content\Pledge\PledgeDefinition" public="true">
+            <tag name="shopware.entity.definition" />
+        </service>
+        <service id="Swag\CrowdPreOrder\Core\Content\Tier\TierDefinition" public="true">
+            <tag name="shopware.entity.definition" />
+        </service>
+
+        <!-- Campaign Service -->
+        <service id="Swag\CrowdPreOrder\Service\CampaignService" public="true">
+            <argument type="service" id="swag_crowd_campaign.repository" />
+            <argument type="service" id="swag_crowd_pledge.repository" />
+            <argument type="service" id="swag_crowd_tier.repository" />
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
+        </service>
+
+        <!-- Mail Service -->
+        <service id="Swag\CrowdPreOrder\Service\CampaignMailService" public="true">
+            <argument type="service" id="Shopware\Core\Content\Mail\Service\MailService" />
+            <argument type="service" id="mail_template.repository" />
+            <argument type="service" id="swag_crowd_campaign.repository" />
+            <argument type="service" id="swag_crowd_pledge.repository" />
+        </service>
+
+        <!-- Register the cart processor -->
+        <service id="Swag\CrowdPreOrder\Core\Checkout\Cart\PreOrderCartProcessor" public="false">
+            <argument type="service" id="swag_crowd_campaign.repository" />
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
+            <tag name="shopware.cart.processor" priority="4500" />
+        </service>
+
+        <!-- Register the scheduled task -->
+        <service id="Swag\CrowdPreOrder\Core\ScheduledTask\CampaignEndTask" public="true">
+            <tag name="shopware.scheduled.task" />
+        </service>
+
+        <!-- Register the enhanced task handler -->
+        <service id="Swag\CrowdPreOrder\Core\ScheduledTask\EnhancedCampaignEndTaskHandler" public="true">
+            <argument type="service" id="swag_crowd_campaign.repository" />
+            <argument type="service" id="swag_crowd_pledge.repository" />
+            <argument type="service" id="order.repository" />
+            <argument type="service" id="order_transaction.repository" />
+            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry" />
+            <argument type="service" id="Swag\CrowdPreOrder\Service\CampaignService" />
+            <argument type="service" id="Swag\CrowdPreOrder\Service\CampaignMailService" />
+            <tag name="messenger.message_handler" />
+        </service>
+
+        <!-- Register storefront subscriber -->
+        <service id="Swag\CrowdPreOrder\Storefront\Page\Product\Subscriber\ProductPageSubscriber" public="true">
+            <argument type="service" id="swag_crowd_campaign.repository" />
+            <tag name="kernel.event_subscriber" />
+        </service>
+
+        <!-- Register order subscriber -->
+        <service id="Swag\CrowdPreOrder\Core\Checkout\Order\Subscriber\OrderSubscriber" public="true">
+            <argument type="service" id="swag_crowd_pledge.repository" />
+            <argument type="service" id="order_line_item.repository" />
+            <tag name="kernel.event_subscriber" />
+        </service>
+
+        <!-- Register campaign controller -->
+        <service id="Swag\CrowdPreOrder\Storefront\Controller\CampaignController" public="true">
+            <argument type="service" id="Swag\CrowdPreOrder\Service\CampaignService" />
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService" />
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
+            <tag name="controller.service_arguments" />
+        </service>
+
+        <!-- Register API controller -->
+        <service id="Swag\CrowdPreOrder\Api\Controller\CampaignApiController" public="true">
+            <argument type="service" id="Swag\CrowdPreOrder\Service\CampaignService" />
+            <argument type="service" id="swag_crowd_campaign.repository" />
+            <argument type="service" id="swag_crowd_pledge.repository" />
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
+            <tag name="controller.service_arguments" />
+        </service>
+
+        <!-- Register console command -->
+        <service id="Swag\CrowdPreOrder\Command\CreateTestCampaignCommand">
+            <argument type="service" id="Swag\CrowdPreOrder\Service\CampaignService" />
+            <argument type="service" id="product.repository" />
+            <argument type="service" id="swag_crowd_campaign.repository" />
+            <tag name="console.command" />
+        </service>
+    </services>
+
+</container>

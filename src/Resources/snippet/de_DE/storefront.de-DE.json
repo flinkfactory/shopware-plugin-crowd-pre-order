@@ -1,0 +1,29 @@
+{
+    "swag-campaign": {
+        "widget": {
+            "crowdfunding": "Crowdfunding-Kampagne",
+            "pledged": "zugesagt",
+            "days": "Tage",
+            "hours": "Stunden",
+            "minutes": "Minuten",
+            "seconds": "Sekunden",
+            "quantity": "Anzahl",
+            "pledgeNow": "Jetzt zusagen",
+            "depositInfo": "Nur %deposit%% Anzahlung erforderlich. Vollzahlung bei Kampagnenerfolg.",
+            "campaignEnded": "Kampagne beendet",
+            "targetReached": "Ziel erreicht!",
+            "backers": "Unterstützer"
+        },
+        "status": {
+            "draft": "Entwurf",
+            "open": "Offen",
+            "success": "Erfolgreich",
+            "failed": "Fehlgeschlagen"
+        },
+        "messages": {
+            "pledgeSuccess": "Erfolgreich zur Kampagne zugesagt!",
+            "pledgeError": "Fehler beim Erstellen der Zusage. Bitte erneut versuchen.",
+            "loginRequired": "Bitte melden Sie sich an, um an Kampagnen teilzunehmen."
+        }
+    }
+}

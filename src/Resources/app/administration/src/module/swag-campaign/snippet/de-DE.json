@@ -1,0 +1,42 @@
+{
+    "swag-campaign": {
+        "general": {
+            "mainMenuItemGeneral": "Crowdfunding-Kampagnen",
+            "descriptionTextModule": "Crowdfunding-Kampagnen verwalten"
+        },
+        "list": {
+            "textTitle": "Crowdfunding-Kampagnen",
+            "buttonAddCampaign": "Kampagne hinzufügen",
+            "columnTitle": "Titel",
+            "columnProduct": "Produkt",
+            "columnStartDate": "Startdatum",
+            "columnEndDate": "Enddatum",
+            "columnTarget": "Ziel",
+            "columnCurrent": "Aktuell",
+            "columnStatus": "Status",
+            "columnActive": "Aktiv"
+        },
+        "detail": {
+            "textHeadline": "Kampagnendetails",
+            "buttonSave": "Speichern",
+            "buttonCancel": "Abbrechen",
+            "tabGeneral": "Allgemein",
+            "tabPledges": "Zusagen",
+            "tabTiers": "Preisstufen",
+            "fieldTitle": "Kampagnentitel",
+            "fieldProduct": "Produkt",
+            "fieldStartDate": "Startdatum",
+            "fieldEndDate": "Enddatum",
+            "fieldTargetQuantity": "Zielmenge",
+            "fieldTargetRevenue": "Zielumsatz",
+            "fieldActive": "Aktiv",
+            "fieldStatus": "Status"
+        },
+        "status": {
+            "draft": "Entwurf",
+            "open": "Offen",
+            "success": "Erfolgreich",
+            "failed": "Fehlgeschlagen"
+        }
+    }
+}
