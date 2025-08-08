@@ -146,10 +146,12 @@ class CampaignController extends StorefrontController
     ): void {
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
-        // Create custom line item for the pledge
+        // Create a regular product line item instead of a custom type. The cart processor
+        // will adjust its price based on the campaign configuration. We still use the
+        // pledge ID as the line item key so we can reference this pledge later.
         $lineItem = new LineItem(
             $pledgeId,
-            'crowd_pledge',
+            LineItem::PRODUCT_LINE_ITEM_TYPE,
             $productId,
             $quantity
         );
@@ -158,7 +160,7 @@ class CampaignController extends StorefrontController
         $lineItem->setRemovable(true);
         $lineItem->setStackable(false);
 
-        // Add custom payload data
+        // Add payload data to identify this as a pledge
         $lineItem->setPayloadValue('campaignId', $campaignId);
         $lineItem->setPayloadValue('pledgeId', $pledgeId);
         $lineItem->setPayloadValue('isPledge', true);

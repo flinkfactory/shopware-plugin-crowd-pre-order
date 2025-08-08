@@ -41,7 +41,8 @@ class ProductPageSubscriber implements EventSubscriberInterface
         }
 
         $productId = $product->getId();
-        $context = Context::createDefaultContext();
+        // Use the context from the sales channel to respect language, currency and rule conditions
+        $context = $event->getSalesChannelContext()->getContext();
 
         // Build criteria to find an active campaign for this product
         $criteria = new Criteria();
